@@ -12,7 +12,7 @@ const PRINT = str => str;
 const rep = str => PRINT(EVAL(READ(str)));
 
 const loop = function () {
-  rl.question('user=> ', answer => {
+  rl.question('user> ', answer => {
     console.log(rep(answer));
     loop();
   });
