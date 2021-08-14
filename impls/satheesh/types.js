@@ -6,6 +6,10 @@ class List {
   toString() {
     return '(' + this.ast.map(a => a.toString()).join(' ') + ')';
   }
+
+  isEmpty() {
+    return this.ast.length === 0;
+  }
 }
 
 class Vector {
