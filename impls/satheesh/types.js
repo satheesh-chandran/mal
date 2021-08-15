@@ -24,11 +24,22 @@ class Vector {
 
 class HashMap {
   constructor(ast) {
-    this.ast = ast;
+    this.hashmap = new Map();
+    for (let index = 0; index < ast.length; index += 2) {
+      this.hashmap.set(ast[index], ast[index + 1]);
+    }
   }
 
   toString() {
-    return '{' + this.ast.map(a => a.toString()).join(' ') + '}';
+    let str = '';
+    let separator = '';
+    for (let [k, v] of this.hashmap.entries()) {
+      str += separator + k.toString();
+      str += ' ';
+      str += v.toString();
+      separator = ' ';
+    }
+    return '{' + str + '}';
   }
 }
 
@@ -59,4 +70,14 @@ class Symbol {
   }
 }
 
-module.exports = { List, Vector, Nil, Symbol, Str, HashMap };
+class Keyword {
+  constructor(Keyword) {
+    this.Keyword = Keyword;
+  }
+
+  toString() {
+    return ':' + this.Keyword.toString();
+  }
+}
+
+module.exports = { List, Vector, Nil, Symbol, Str, HashMap, Keyword };

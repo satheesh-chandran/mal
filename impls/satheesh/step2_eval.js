@@ -25,6 +25,15 @@ const eval_ast = function (ast, env) {
     const newVector = ast.ast.map(x => EVAL(x, env));
     return new Vector(newVector);
   }
+
+  if (ast instanceof HashMap) {
+    const newList = [];
+    for (let [k, v] of ast.hashmap.entries()) {
+      newList.push(EVAL(k, env));
+      newList.push(EVAL(v, env));
+    }
+    return new HashMap(newList);
+  }
   return ast;
 };
 
