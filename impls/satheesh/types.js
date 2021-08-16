@@ -7,6 +7,10 @@ class List {
     return '(' + this.ast.map(a => a.toString()).join(' ') + ')';
   }
 
+  count() {
+    return this.ast.length;
+  }
+
   isEmpty() {
     return this.ast.length === 0;
   }
@@ -15,6 +19,14 @@ class List {
 class Vector {
   constructor(ast) {
     this.ast = ast;
+  }
+
+  count() {
+    return this.ast.length;
+  }
+
+  isEmpty() {
+    return this.ast.length === 0;
   }
 
   toString() {
@@ -28,6 +40,14 @@ class HashMap {
     for (let index = 0; index < ast.length; index += 2) {
       this.hashmap.set(ast[index], ast[index + 1]);
     }
+  }
+
+  count() {
+    return this.hashmap.size;
+  }
+
+  isEmpty() {
+    return this.hashmap.size === 0;
   }
 
   toString() {
@@ -80,4 +100,18 @@ class Keyword {
   }
 }
 
-module.exports = { List, Vector, Nil, Symbol, Str, HashMap, Keyword };
+class Fn {
+  constructor(fn) {
+    this.fn = fn;
+  }
+
+  toString() {
+    return '#<function>';
+  }
+
+  apply(args) {
+    return this.fn.apply(null, args);
+  }
+}
+
+module.exports = { List, Vector, Nil, Symbol, Str, HashMap, Keyword, Fn };
