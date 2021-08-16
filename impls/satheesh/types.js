@@ -1,6 +1,34 @@
+class Num {
+  constructor(num) {
+    this.num = num;
+  }
+
+  toString() {
+    return this.num.toString();
+  }
+
+  equalsTo(other) {
+    return other instanceof Num ? this.num === other.num : false;
+  }
+}
+
 class List {
   constructor(ast) {
     this.ast = ast;
+  }
+
+  equalsTo(other) {
+    if (!(other instanceof Vector || other instanceof List)) {
+      return false;
+    }
+
+    if (this.count().num !== other.count().num) {
+      return false;
+    }
+
+    return this.ast.every((x, i) => {
+      return this.ast[i].equalsTo(other.ast[i]);
+    });
   }
 
   toString() {
@@ -8,7 +36,7 @@ class List {
   }
 
   count() {
-    return this.ast.length;
+    return new Num(this.ast.length);
   }
 
   isEmpty() {
@@ -22,7 +50,21 @@ class Vector {
   }
 
   count() {
-    return this.ast.length;
+    return new Num(this.ast.length);
+  }
+
+  equalsTo(other) {
+    if (!(other instanceof Vector || other instanceof List)) {
+      return false;
+    }
+
+    if (this.count().num !== other.count().num) {
+      return false;
+    }
+
+    return this.ast.every((x, i) => {
+      return this.ast[i].equalsTo(other.ast[i]);
+    });
   }
 
   isEmpty() {
@@ -43,7 +85,7 @@ class HashMap {
   }
 
   count() {
-    return this.hashmap.size;
+    return new Num(this.hashmap.size);
   }
 
   isEmpty() {
@@ -68,11 +110,27 @@ class Nil {
   toString() {
     return 'nil';
   }
+
+  equalsTo(other) {
+    return other instanceof Nil;
+  }
+
+  count() {
+    return new Num(0);
+  }
 }
 
 class Str {
   constructor(str) {
     this.str = str;
+  }
+
+  count() {
+    return new Num(this.str.length);
+  }
+
+  equalsTo(other) {
+    return other instanceof Str ? this.str === other.str : false;
   }
 
   toString() {
@@ -83,6 +141,10 @@ class Str {
 class Symbol {
   constructor(symbol) {
     this.symbol = symbol;
+  }
+
+  equalsTo(other) {
+    return other instanceof Symbol ? this.symbol === other.symbol : false;
   }
 
   toString() {
@@ -97,6 +159,10 @@ class Keyword {
 
   toString() {
     return ':' + this.Keyword.toString();
+  }
+
+  equalsTo(other) {
+    return other instanceof Keyword ? this.Keyword === other.Keyword : false;
   }
 }
 
@@ -114,4 +180,4 @@ class Fn {
   }
 }
 
-module.exports = { List, Vector, Nil, Symbol, Str, HashMap, Keyword, Fn };
+module.exports = { List, Vector, Nil, Symbol, Str, HashMap, Keyword, Fn, Num };
