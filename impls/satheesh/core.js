@@ -1,12 +1,12 @@
 const { Env } = require('./env');
-const { Symbol, Fn, Nil, List, Str, Num } = require('./types');
+const { Symbol, Fn, Nil, List, Str } = require('./types');
 const pr_str = require('./printer');
 const core = new Env(null);
 
-core.set(new Symbol('+'), new Fn((a, b) => new Num(a.num + b.num)));
-core.set(new Symbol('-'), new Fn((a, b) => new Num(a.num - b.num)));
-core.set(new Symbol('*'), new Fn((a, b) => new Num(a.num * b.num)));
-core.set(new Symbol('/'), new Fn((a, b) => new Num(a.num / b.num)));
+core.set(new Symbol('+'), new Fn((a, b) => a + b));
+core.set(new Symbol('-'), new Fn((a, b) => a - b));
+core.set(new Symbol('*'), new Fn((a, b) => a * b));
+core.set(new Symbol('/'), new Fn((a, b) => a / b));
 
 core.set(
   new Symbol('prn'),
@@ -62,29 +62,9 @@ core.set(
     }
   })
 );
-core.set(
-  new Symbol('<='),
-  new Fn((a, b) => {
-    return a.num <= b.num;
-  })
-);
-core.set(
-  new Symbol('>='),
-  new Fn((a, b) => {
-    return a.num >= b.num;
-  })
-);
-core.set(
-  new Symbol('>'),
-  new Fn((a, b) => {
-    return a.num > b.num;
-  })
-);
-core.set(
-  new Symbol('<'),
-  new Fn((a, b) => {
-    return a.num < b.num;
-  })
-);
+core.set(new Symbol('<='), new Fn((a, b) => a <= b));
+core.set(new Symbol('>='), new Fn((a, b) => a >= b));
+core.set(new Symbol('>'), new Fn((a, b) => a > b));
+core.set(new Symbol('<'), new Fn((a, b) => a < b));
 
 module.exports = { core };

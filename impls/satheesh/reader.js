@@ -1,13 +1,4 @@
-const {
-  List,
-  Vector,
-  Nil,
-  Symbol,
-  Str,
-  HashMap,
-  Keyword,
-  Num
-} = require('./types');
+const { List, Vector, Nil, Symbol, Str, HashMap, Keyword } = require('./types');
 
 const tokenize = str => {
   const reg = /[\s,]*(~@|[\[\]{}()'`~^@]|"(?:\\.|[^\\"])*"?|;.*|[^\s\[\]{}('"`,;)]*)/g;
@@ -42,10 +33,10 @@ class Reader {
 
 const read_atom = function (token) {
   if (token.match(/^-?[0-9]+$/)) {
-    return new Num(parseInt(token));
+    return parseInt(token);
   }
   if (token.match(/^-?[0-9]+\.[0-9]+$/)) {
-    return new Num(parseFloat(token));
+    return parseFloat(token);
   }
   if (token === 'true') {
     return true;

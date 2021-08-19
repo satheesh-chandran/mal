@@ -1,17 +1,3 @@
-class Num {
-  constructor(num) {
-    this.num = num;
-  }
-
-  toString() {
-    return this.num.toString();
-  }
-
-  equalsTo(other) {
-    return other instanceof Num ? this.num === other.num : false;
-  }
-}
-
 class List {
   constructor(ast) {
     this.ast = ast;
@@ -22,12 +8,16 @@ class List {
       return false;
     }
 
-    if (this.count().num !== other.count().num) {
+    if (this.count() !== other.count()) {
       return false;
     }
 
     return this.ast.every((x, i) => {
-      return this.ast[i].equalsTo(other.ast[i]);
+      try {
+        return this.ast[i].equalsTo(other.ast[i]);
+      } catch (error) {
+        return this.ast[i] === other.ast[i];
+      }
     });
   }
 
@@ -36,7 +26,7 @@ class List {
   }
 
   count() {
-    return new Num(this.ast.length);
+    return this.ast.length;
   }
 
   isEmpty() {
@@ -50,7 +40,7 @@ class Vector {
   }
 
   count() {
-    return new Num(this.ast.length);
+    return this.ast.length;
   }
 
   equalsTo(other) {
@@ -58,12 +48,15 @@ class Vector {
       return false;
     }
 
-    if (this.count().num !== other.count().num) {
+    if (this.count() !== other.count()) {
       return false;
     }
-
     return this.ast.every((x, i) => {
-      return this.ast[i].equalsTo(other.ast[i]);
+      try {
+        return this.ast[i].equalsTo(other.ast[i]);
+      } catch (error) {
+        return this.ast[i] === other.ast[i];
+      }
     });
   }
 
@@ -84,8 +77,20 @@ class HashMap {
     }
   }
 
+  equalsTo(other) {
+    if (!(other instanceof HashMap) && this.count() !== other.count()) {
+      return false;
+    }
+
+    let isEqual = true;
+    for (let [key, val] of this.hashmap) {
+      isEqual = isEqual && other.hashmap.get(key).equalsTo(val);
+    }
+    return isEqual;
+  }
+
   count() {
-    return new Num(this.hashmap.size);
+    return this.hashmap.size;
   }
 
   isEmpty() {
@@ -116,7 +121,7 @@ class Nil {
   }
 
   count() {
-    return new Num(0);
+    return 0;
   }
 }
 
@@ -126,7 +131,7 @@ class Str {
   }
 
   count() {
-    return new Num(this.str.length);
+    return this.str.length;
   }
 
   equalsTo(other) {
@@ -180,4 +185,4 @@ class Fn {
   }
 }
 
-module.exports = { List, Vector, Nil, Symbol, Str, HashMap, Keyword, Fn, Num };
+module.exports = { List, Vector, Nil, Symbol, Str, HashMap, Keyword, Fn };
