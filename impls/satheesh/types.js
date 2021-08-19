@@ -1,3 +1,4 @@
+const { Env } = require('./env');
 class List {
   constructor(ast) {
     this.ast = ast;
@@ -172,16 +173,18 @@ class Keyword {
 }
 
 class Fn {
-  constructor(fn) {
-    this.fn = fn;
+  constructor(fnBody, binds, env) {
+    this.fnBody = fnBody;
+    this.binds = binds;
+    this.env = env;
   }
 
   toString() {
     return '#<function>';
   }
 
-  apply(args) {
-    return this.fn.apply(null, args);
+  genEnv(args) {
+    return new Env(this.env, this.binds, args);
   }
 }
 
