@@ -172,6 +172,25 @@ class Keyword {
   }
 }
 
+class Atom {
+  constructor(ast) {
+    this.ast = ast;
+  }
+
+  toString() {
+    return `(atom ${this.ast.toString()})`;
+  }
+
+  reset(newAst) {
+    this.ast = newAst;
+    return newAst;
+  }
+
+  equalsTo(other) {
+    return other instanceof Atom ? this.ast === other.ast : false;
+  }
+}
+
 class Fn {
   constructor(fnBody, binds, env) {
     this.fnBody = fnBody;
@@ -188,4 +207,4 @@ class Fn {
   }
 }
 
-module.exports = { List, Vector, Nil, Symbol, Str, HashMap, Keyword, Fn };
+module.exports = { List, Vector, Nil, Symbol, Str, HashMap, Keyword, Fn, Atom };

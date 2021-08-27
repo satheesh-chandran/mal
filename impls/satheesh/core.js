@@ -1,6 +1,8 @@
+const { readFileSync } = require('fs');
 const { Env } = require('./env');
-const { Symbol, Nil, List, Str } = require('./types');
+const { Symbol, Nil, List, Str, Atom } = require('./types');
 const pr_str = require('./printer');
+const read_str = require('./reader');
 const core = new Env(null);
 
 core.set(new Symbol('+'), (a, b) => a + b);
@@ -48,5 +50,17 @@ core.set(new Symbol('<='), (a, b) => a <= b);
 core.set(new Symbol('>='), (a, b) => a >= b);
 core.set(new Symbol('>'), (a, b) => a > b);
 core.set(new Symbol('<'), (a, b) => a < b);
+
+core.set(new Symbol('read-string'), str => read_str(str.str));
+
+core.set(new Symbol('slurp'), fileName => readFileSync(fileName.str, 'utf-8'));
+
+core.set(new Symbol('atom'), ast => new Atom(ast));
+core.set(new Symbol('atom?'), element => element instanceof Atom);
+core.set(new Symbol('deref'), atom => atom.ast);
+core.set(new Symbol('reset!'), (atom, mal) => atom.reset(mal));
+// core.set(new Symbol('swap!'), (atom, func, ...args) => {
+//   return atom.reset(func(atom.ast, ...args));
+// });
 
 module.exports = { core };
