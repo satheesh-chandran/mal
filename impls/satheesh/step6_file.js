@@ -99,12 +99,25 @@ const PRINT = ast => pr_str(ast);
 
 const env = new Env(core);
 
-env.set(new Symbol('eval'), function (ast) {
-  return EVAL(ast, env);
-});
+env.set(
+  new Symbol('eval'),
+  new Fn(function (ast) {
+    return EVAL(ast, env);
+  })
+);
+
+env.set(
+  new Symbol('*ARGV*'),
+  new List(process.argv.slice(3).map(s => new Str(s)))
+);
 
 const rep = str => PRINT(EVAL(READ(str), env));
 rep('(def! not (fn* (a) (if a false true)))');
+rep('(def! inc1 (fn* (a) (+ a 1)))');
+rep('(def! inc2 (fn* (a) (+ a 2)))');
+rep('(def! inc3 (fn* (a) (+ a 3)))');
+rep('(def! inc4 (fn* (a) (+ a 4)))');
+rep('(def! inc5 (fn* (a) (+ a 5)))');
 rep(
   '(def! load-file (fn* (f) (eval (read-string (str "(do " (slurp f) "\nnil)")))))'
 );

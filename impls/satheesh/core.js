@@ -69,11 +69,22 @@ core.set(new Symbol('>='), new Fn((a, b) => a >= b));
 core.set(new Symbol('>'), new Fn((a, b) => a > b));
 core.set(new Symbol('<'), new Fn((a, b) => a < b));
 
-core.set(new Symbol('read-string'), new Fn(str => read_str(str.str)));
+core.set(
+  new Symbol('read-string'),
+  new Fn(str => {
+    return read_str(str.str);
+  })
+);
 
 core.set(
   new Symbol('slurp'),
-  new Fn(fileName => readFileSync(fileName.str, 'utf-8'))
+  new Fn(fileName => {
+    try {
+      return new Str(readFileSync(fileName.str, 'utf-8'));
+    } catch (error) {
+      throw 'File not found';
+    }
+  })
 );
 
 core.set(new Symbol('atom'), new Fn(ast => new Atom(ast)));

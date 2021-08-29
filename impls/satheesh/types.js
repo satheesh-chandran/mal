@@ -139,8 +139,16 @@ class Str {
     return other instanceof Str ? this.str === other.str : false;
   }
 
-  toString() {
-    return '"' + this.str.toString() + '"';
+  toString(readably = true) {
+    if (!readably) {
+      return this.str.toString(undefined, readably);
+    }
+
+    return `"${this.str
+      .replace(/\\/g, '\\\\')
+      .replace(/"/g, '\\"')
+      .replace(/\n/g, '\\n')
+      .toString()}"`;
   }
 }
 

@@ -47,6 +47,13 @@ const read_atom = function (token) {
   if (token === 'nil') {
     return new Nil();
   }
+  if (token.match(/^"(?:\\.|[^\\"])*"$/)) {
+    return new Str(
+      token.slice(1, -1).replace(/\\(.)/g, (_, c) => {
+        return c === 'n' ? '\n' : c;
+      })
+    );
+  }
   if (token.startsWith('"')) {
     if (!/[^\\]"$/.test(token)) {
       throw 'unbalanced';
@@ -102,6 +109,9 @@ const read_form = function (reader) {
     case '{':
       reader.next();
       return read_hash(reader);
+    case '@':
+      reader.next();
+      return new List([new Symbol('deref'), new Symbol(reader.peek())]);
     case ')':
       throw 'unexpected';
     case ']':
