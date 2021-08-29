@@ -140,7 +140,7 @@ class Str {
   }
 
   toString() {
-    return '"' + this.str + '"';
+    return '"' + this.str.toString() + '"';
   }
 }
 
@@ -190,20 +190,20 @@ class Atom {
     return other instanceof Atom ? this.ast === other.ast : false;
   }
 }
-
 class Fn {
-  constructor(fnBody, binds, env) {
-    this.fnBody = fnBody;
-    this.binds = binds;
+  constructor(fn, ast, params, env) {
+    this.fn = fn;
+    this.ast = ast;
+    this.params = params;
     this.env = env;
+  }
+
+  apply(params) {
+    return this.fn.apply(null, params);
   }
 
   toString() {
     return '#<function>';
-  }
-
-  genEnv(args) {
-    return new Env(this.env, this.binds, args);
   }
 }
 

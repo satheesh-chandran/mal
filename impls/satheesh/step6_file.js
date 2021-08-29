@@ -76,16 +76,22 @@ const EVAL = (ast, env) => {
       case 'fn*':
         const binds = ast.ast[1].ast;
         const fnBody = ast.ast[2];
-        return new Fn(fnBody, binds, env);
+        const fn = function (...values) {
+          const newEnv = new Env(env, binds, values);
+          return EVAL(fnBody, newEnv);
+        };
+        return new Fn(fn, fnBody, ast.ast[1], env);
       default:
         const newList = eval_ast(ast, env);
         const func = newList.ast[0];
-        if (func instanceof Fn) {
-          ast = func.fnBody;
-          env = func.genEnv(newList.ast.slice(1));
-        } else {
-          return func.apply(null, newList.ast.slice(1));
+
+        if (func.ast) {
+          ast = func.ast;
+          env = new Env(func.env, func.params.ast, newList.ast.slice(1));
+          continue;
         }
+
+        return func.apply(newList.ast.slice(1));
     }
   }
 };
@@ -99,7 +105,6 @@ env.set(new Symbol('eval'), function (ast) {
 
 const rep = str => PRINT(EVAL(READ(str), env));
 rep('(def! not (fn* (a) (if a false true)))');
-
 rep(
   '(def! load-file (fn* (f) (eval (read-string (str "(do " (slurp f) "\nnil)")))))'
 );
