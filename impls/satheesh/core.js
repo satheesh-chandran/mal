@@ -115,4 +115,30 @@ core.set(
 
 core.set(new Symbol('vec'), new Fn(seq => new Vector(seq.ast.slice())));
 
+core.set(
+  new Symbol('nth'),
+  new Fn((seq, index) => {
+    if (index >= seq.ast.length) throw 'index not found';
+    return seq.ast[index];
+  })
+);
+
+core.set(
+  new Symbol('first'),
+  new Fn(seq => {
+    if (seq instanceof Nil) return new Nil();
+    if (seq.ast.length === 0) return new Nil();
+    return seq.ast[0];
+  })
+);
+
+core.set(
+  new Symbol('rest'),
+  new Fn(seq => {
+    if (seq instanceof Nil) return new List([]);
+    if (seq.ast.length === 0) return new List([]);
+    return new List(seq.ast.slice(1));
+  })
+);
+
 module.exports = { core };

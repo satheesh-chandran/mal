@@ -220,11 +220,12 @@ class Atom {
   }
 }
 class Fn {
-  constructor(fn, ast, params, env) {
+  constructor(fn, ast, params, env, is_macro = false) {
     this.fn = fn;
     this.ast = ast;
     this.params = params;
     this.env = env;
+    this.is_macro = is_macro;
   }
 
   apply(params) {
