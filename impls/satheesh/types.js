@@ -1,4 +1,3 @@
-const { Env } = require('./env');
 class List {
   constructor(ast) {
     this.ast = ast;
@@ -22,6 +21,20 @@ class List {
     });
   }
 
+  beginsWith(form) {
+    const first = this.ast[0];
+    if (first instanceof Symbol) return first.symbol === form;
+    return first === form;
+  }
+
+  cons(element) {
+    return new List([element, ...this.ast]);
+  }
+
+  concat(other) {
+    return new List(this.ast.concat(other.ast));
+  }
+
   toString() {
     return '(' + this.ast.map(a => a.toString()).join(' ') + ')';
   }
@@ -42,6 +55,14 @@ class Vector {
 
   count() {
     return this.ast.length;
+  }
+
+  cons(element) {
+    return new List([element, ...this.ast]);
+  }
+
+  concat(other) {
+    return new List(this.ast.concat(other.ast));
   }
 
   equalsTo(other) {

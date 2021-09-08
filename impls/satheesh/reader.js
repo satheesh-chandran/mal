@@ -97,6 +97,13 @@ const read_hash = function (reader) {
   return new HashMap(ast);
 };
 
+const prependSymbol = function (reader, symbolStr) {
+  reader.next();
+  const symbol = new Symbol(symbolStr);
+  const newAst = read_form(reader);
+  return new List([symbol, newAst]);
+};
+
 const read_form = function (reader) {
   const token = reader.peek();
   switch (token[0]) {
@@ -110,8 +117,15 @@ const read_form = function (reader) {
       reader.next();
       return read_hash(reader);
     case '@':
-      reader.next();
-      return new List([new Symbol('deref'), new Symbol(reader.peek())]);
+      return prependSymbol(reader, 'deref');
+    case "'":
+      return prependSymbol(reader, 'quote');
+    case '`':
+      return prependSymbol(reader, 'quasiquote');
+    case '~':
+      return prependSymbol(reader, 'unquote');
+    case '~@':
+      return prependSymbol(reader, 'splice-unquote');
     case ')':
       throw 'unexpected';
     case ']':

@@ -1,6 +1,6 @@
 const { readFileSync } = require('fs');
 const { Env } = require('./env');
-const { Symbol, Nil, List, Str, Atom, Fn } = require('./types');
+const { Symbol, Nil, List, Str, Atom, Fn, Vector } = require('./types');
 const pr_str = require('./printer');
 const read_str = require('./reader');
 const core = new Env(null);
@@ -97,5 +97,22 @@ core.set(
     return atom.reset(func.apply([atom.ast, ...args]));
   })
 );
+
+core.set(
+  new Symbol('cons'),
+  new Fn((element, seq) => {
+    return seq.cons(element);
+  })
+);
+
+core.set(
+  new Symbol('concat'),
+  new Fn((...lists) => {
+    const list = new List([]);
+    return lists.reduce((a, b) => a.concat(b), list);
+  })
+);
+
+core.set(new Symbol('vec'), new Fn(seq => new Vector(seq.ast.slice())));
 
 module.exports = { core };
