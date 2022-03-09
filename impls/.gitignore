@@ -148,3 +148,6 @@ elm/*.js
 !elm/bootstrap.js
 wasm/*.wat
 wasm/*.wasm
+
+stepTS/package-lock.json
+stepTS/node_modules
