@@ -1,7 +1,8 @@
 import { MalType } from './types';
 
-const print_str = function (element: MalType) {
-  return element.toString();
+//@ts-ignore
+const print_str = function (element: MalType, printReadably: boolean = false) {
+  return element.toString(printReadably);
 };
 
 export { print_str };
