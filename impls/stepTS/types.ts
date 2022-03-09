@@ -1,5 +1,5 @@
 class MalList {
-  private list: MalType[];
+  public readonly list: MalType[];
   constructor(list: MalType[]) {
     this.list = list;
   }
@@ -11,7 +11,7 @@ class MalList {
 }
 
 class MalVector {
-  private list: MalType[];
+  public readonly list: MalType[];
   constructor(list: MalType[]) {
     this.list = list;
   }
@@ -23,7 +23,7 @@ class MalVector {
 }
 
 class MalMap {
-  private list: MalType[];
+  public readonly list: MalType[];
   constructor(list: MalType[]) {
     this.list = list;
   }
@@ -35,7 +35,7 @@ class MalMap {
 }
 
 class MalNumber {
-  private num: number;
+  public readonly num: number;
   constructor(num: number) {
     this.num = num;
   }
@@ -57,7 +57,7 @@ class MalString {
 }
 
 class MalSymbol {
-  private sym: string;
+  public readonly sym: string;
   private static symbolMap: Map<string, MalSymbol> = new Map<
     string,
     MalSymbol
@@ -134,7 +134,10 @@ class MalKeyword {
   }
 }
 
+type MalF = (...args: (MalType | undefined)[]) => MalType;
+
 type MalType =
+  | MalF
   | MalMap
   | MalNil
   | MalList
@@ -146,6 +149,7 @@ type MalType =
   | MalBoolean;
 
 export {
+  MalF,
   MalMap,
   MalNil,
   MalType,
