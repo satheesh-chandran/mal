@@ -11,7 +11,8 @@ import {
   MalNumber,
   MalString,
   MalSymbol,
-  MalType
+  MalType,
+  MalVector
 } from './types';
 
 const coreEnv: Env = new Env(null);
@@ -193,6 +194,34 @@ coreEnv.set(
   MalSymbol.get('swap!'),
   new MalFunction((atom: MalAtom, func: MalFunction, ...args: MalType[]) => {
     return atom.reset(func.apply([atom.ast, ...args]));
+  })
+);
+
+coreEnv.set(
+  MalSymbol.get('cons'),
+  new MalFunction((element: MalType, list: MalList | MalVector) => {
+    return list.cons(element);
+  })
+);
+
+coreEnv.set(
+  MalSymbol.get('concat'),
+  new MalFunction((...lists: MalList[] | MalVector[]) => {
+    const list = new MalList([]);
+    return lists.reduce(
+      (a: MalList | MalVector, b: MalList) => a.concat(b),
+      list
+    );
+  })
+);
+
+coreEnv.set(
+  MalSymbol.get('vec'),
+  new MalFunction((ast: MalList | MalVector) => {
+    if (ast instanceof MalList) {
+      return new MalVector([...ast.list]);
+    }
+    return ast;
   })
 );
 

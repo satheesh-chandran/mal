@@ -12,6 +12,19 @@ class MalList {
     return `(${strings.join(' ')})`;
   }
 
+  public cons(element: MalType): MalList {
+    return new MalList([element, ...this.list]);
+  }
+
+  public concat(other: MalList | MalVector): MalList {
+    return new MalList(this.list.concat(other.list));
+  }
+
+  public beginsWith(name: string): boolean {
+    const first: MalType = this.list[0];
+    return first instanceof MalSymbol && (first as MalSymbol).sym === name;
+  }
+
   public equals(other: MalList | MalVector): MalBoolean {
     if (this.list.length !== other.list.length) return new MalBoolean(false);
 
@@ -34,6 +47,19 @@ class MalVector {
   public toString(printReadably = true): string {
     const strings: string[] = this.list.map((mal: MalType) => mal.toString());
     return `[${strings.join(' ')}]`;
+  }
+
+  public cons(element: MalType): MalList {
+    return new MalList([element, ...this.list]);
+  }
+
+  public concat(other: MalList | MalVector): MalList {
+    return new MalList(this.list.concat(other.list));
+  }
+
+  public beginsWith(name: string): boolean {
+    const first: MalType = this.list[0];
+    return first instanceof MalSymbol && (first as MalSymbol).sym === name;
   }
 
   public equals(other: MalVector | MalList): MalBoolean {
