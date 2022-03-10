@@ -1,6 +1,9 @@
+import { readFileSync } from 'fs';
 import { Env } from './env';
 import { print_str } from './printer';
+import { read_str } from './reader';
 import {
+  MalAtom,
   MalBoolean,
   MalFunction,
   MalList,
@@ -31,6 +34,24 @@ coreEnv.set(
 coreEnv.set(
   MalSymbol.get('/'),
   new MalFunction((a: MalNumber, b: MalNumber) => new MalNumber(a.num / b.num))
+);
+
+coreEnv.set(
+  MalSymbol.get('read-string'),
+  new MalFunction(
+    (str: MalString): MalType => {
+      return read_str(str.str);
+    }
+  )
+);
+
+coreEnv.set(
+  MalSymbol.get('slurp'),
+  new MalFunction(
+    (filename: MalString): MalType => {
+      return new MalString(readFileSync(filename.str, 'utf-8'));
+    }
+  )
 );
 
 coreEnv.set(
@@ -137,6 +158,41 @@ coreEnv.set(
     } catch (error) {
       return new MalBoolean(false);
     }
+  })
+);
+
+coreEnv.set(
+  MalSymbol.get('atom'),
+  new MalFunction(function (el: MalType): MalAtom {
+    return new MalAtom(el);
+  })
+);
+
+coreEnv.set(
+  MalSymbol.get('atom?'),
+  new MalFunction(function (el: MalType): MalBoolean {
+    return new MalBoolean(el instanceof MalAtom);
+  })
+);
+
+coreEnv.set(
+  MalSymbol.get('deref'),
+  new MalFunction(function (el: MalAtom): MalType {
+    return el.ast;
+  })
+);
+
+coreEnv.set(
+  MalSymbol.get('reset!'),
+  new MalFunction(function (el: MalAtom, newAst: MalType): MalType {
+    return el.reset(newAst);
+  })
+);
+
+coreEnv.set(
+  MalSymbol.get('swap!'),
+  new MalFunction((atom: MalAtom, func: MalFunction, ...args: MalType[]) => {
+    return atom.reset(func.apply([atom.ast, ...args]));
   })
 );
 

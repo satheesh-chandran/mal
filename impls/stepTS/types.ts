@@ -88,7 +88,7 @@ class MalNumber {
 }
 
 class MalString {
-  private str: string;
+  public readonly str: string;
   constructor(str: string) {
     this.str = str;
   }
@@ -101,7 +101,7 @@ class MalString {
         .replace(/\n/g, '\\n');
       return `"${value}"`;
     }
-    return `"${this.str.toString()}"`;
+    return `${this.str.toString()}`;
   }
 
   public equals(other: MalString): MalBoolean {
@@ -236,10 +236,32 @@ class MalFunction {
   }
 }
 
+class MalAtom {
+  public ast: MalType;
+
+  constructor(ast: MalType) {
+    this.ast = ast;
+  }
+
+  public toString(): string {
+    return `(atom ${this.ast.toString()})`;
+  }
+
+  public reset(newAst: MalType): MalType {
+    this.ast = newAst;
+    return newAst;
+  }
+
+  public equalsTo(other: MalAtom) {
+    return this.ast === other.ast;
+  }
+}
+
 type MalType =
   | Env
   | MalMap
   | MalNil
+  | MalAtom
   | MalList
   | MalNumber
   | MalString
@@ -253,6 +275,7 @@ export {
   MalF,
   MalMap,
   MalNil,
+  MalAtom,
   MalType,
   MalList,
   MalNumber,
