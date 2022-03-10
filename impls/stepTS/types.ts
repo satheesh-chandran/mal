@@ -240,12 +240,20 @@ class MalFunction {
   public readonly ast: MalType | undefined;
   public readonly params: MalSymbol[] | undefined;
   public readonly env: Env | undefined;
+  public isMacro: boolean;
 
-  constructor(fn: MalF, ast?: MalType, params?: MalSymbol[], env?: Env) {
+  constructor(
+    fn: MalF,
+    ast?: MalType,
+    params?: MalSymbol[],
+    env?: Env,
+    isMacro: boolean = false
+  ) {
     this.fn = fn;
     this.ast = ast;
     this.params = params;
     this.env = env;
+    this.isMacro = isMacro;
   }
 
   public apply(params: MalType[]): MalType {

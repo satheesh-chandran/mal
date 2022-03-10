@@ -218,10 +218,38 @@ coreEnv.set(
 coreEnv.set(
   MalSymbol.get('vec'),
   new MalFunction((ast: MalList | MalVector) => {
-    if (ast instanceof MalList) {
-      return new MalVector([...ast.list]);
+    return ast instanceof MalList ? new MalVector([...ast.list]) : ast;
+  })
+);
+
+coreEnv.set(
+  MalSymbol.get('nth'),
+  new MalFunction((ast: MalList | MalVector, index: MalNumber) => {
+    return ast.list[index.num];
+  })
+);
+
+coreEnv.set(
+  MalSymbol.get('first'),
+  new MalFunction((ast: MalType) => {
+    if (ast instanceof MalList || ast instanceof MalVector) {
+      return ast.list.length == 0 ? MalNil.Instance : ast.list[0];
     }
-    return ast;
+    return MalNil.Instance;
+  })
+);
+
+coreEnv.set(
+  MalSymbol.get('rest'),
+  new MalFunction((ast: MalType) => {
+    if (!(ast instanceof MalList) && !(ast instanceof MalVector)) {
+      return new MalList([]);
+    }
+    if (ast.list.length == 0) {
+      return new MalList([]);
+    }
+    const [, ...rest] = ast.list;
+    return new MalList(rest);
   })
 );
 
