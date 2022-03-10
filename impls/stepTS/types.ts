@@ -1,3 +1,5 @@
+import { Env } from './env';
+
 class MalList {
   public readonly list: MalType[];
   constructor(list: MalType[]) {
@@ -161,9 +163,9 @@ class MalNil {
 }
 
 class MalBoolean {
-  public readonly value: boolean;
+  public value: Boolean;
 
-  constructor(value: boolean) {
+  constructor(value: Boolean) {
     this.value = value;
   }
 
@@ -208,14 +210,20 @@ class MalKeyword {
 type MalF = (...args: (MalType | undefined)[]) => MalType;
 
 class MalFunction {
-  private fn: MalF;
+  public readonly fn: MalF;
+  public readonly ast: MalType | undefined;
+  public readonly params: MalSymbol[] | undefined;
+  public readonly env: Env | undefined;
 
-  constructor(fn: MalF) {
+  constructor(fn: MalF, ast?: MalType, params?: MalSymbol[], env?: Env) {
     this.fn = fn;
+    this.ast = ast;
+    this.params = params;
+    this.env = env;
   }
 
   public apply(params: MalType[]): MalType {
-    return this.fn(...params);
+    return this.fn.apply(null, params);
   }
 
   //@ts-ignore
@@ -229,6 +237,7 @@ class MalFunction {
 }
 
 type MalType =
+  | Env
   | MalMap
   | MalNil
   | MalList

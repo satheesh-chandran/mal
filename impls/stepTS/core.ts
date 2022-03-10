@@ -133,7 +133,7 @@ coreEnv.set(
   new MalFunction(function (a: MalType, b: MalType): MalType {
     try {
       //@ts-ignore
-      return new MalBoolean(a.equals(b));
+      return a.equals(b);
     } catch (error) {
       return new MalBoolean(false);
     }
