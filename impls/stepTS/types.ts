@@ -35,6 +35,22 @@ class MalList {
     }
     return new MalBoolean(isEqual);
   }
+
+  public some(predicate: MalFunction): MalBoolean {
+    let result: boolean = false;
+    this.list.forEach((el: MalType) => {
+      result = result || (predicate.apply([el]) as MalBoolean).value;
+    });
+    return new MalBoolean(result);
+  }
+
+  public every(predicate: MalFunction): MalBoolean {
+    let result: boolean = true;
+    this.list.forEach((el: MalType) => {
+      result = result && (predicate.apply([el]) as MalBoolean).value;
+    });
+    return new MalBoolean(result);
+  }
 }
 
 class MalVector {
@@ -72,28 +88,143 @@ class MalVector {
     }
     return new MalBoolean(isEqual);
   }
+
+  public some(predicate: MalFunction): MalBoolean {
+    let result: boolean = false;
+    this.list.forEach((el: MalType) => {
+      result = result || (predicate.apply([el]) as MalBoolean).value;
+    });
+    return new MalBoolean(result);
+  }
+
+  public every(predicate: MalFunction): MalBoolean {
+    let result: boolean = true;
+    this.list.forEach((el: MalType) => {
+      result = result && (predicate.apply([el]) as MalBoolean).value;
+    });
+    return new MalBoolean(result);
+  }
 }
 
 class MalMap {
-  public readonly list: MalType[];
+  public readonly list: Map<MalType, MalType>;
   constructor(list: MalType[]) {
-    this.list = list;
+    this.list = new Map<MalType, MalType>();
+    while (list.length !== 0) {
+      const key = list.shift()!;
+      const value = list.shift();
+      if (!value) {
+        throw new Error('unexpected hash length');
+      }
+      this.list.set(key, value);
+    }
   }
 
   //@ts-ignore
   public toString(printReadably = true): string {
-    const strings: string[] = this.list.map((mal: MalType) => mal.toString());
+    const mapper = ([key, value]: [MalType, MalType]) => {
+      return `${key.toString()} ${value.toString()}`;
+    };
+    const strings: string[] = this.entries().map(mapper);
     return `{${strings.join(' ')}}`;
   }
 
-  public equals(other: MalMap): MalBoolean {
-    if (this.list.length !== other.list.length) return new MalBoolean(false);
-    let isEqual: boolean = true;
-    for (let index = 0; index < this.list.length; index++) {
+  public entries(): [MalType, MalType][] {
+    const resultList: [MalType, MalType][] = [];
+    this.list.forEach((v, k) => {
+      resultList.push([k, v]);
+    });
+    return resultList;
+  }
+
+  public get(otherKey: MalType): MalType {
+    const mapEntries: [MalType, MalType][] = this.entries();
+    let result: MalType = MalNil.Instance;
+    mapEntries.forEach(([key, value]: [MalType, MalType]) => {
+      try {
+        //@ts-ignore
+        if (key.equals(otherKey).value) {
+          result = value;
+        }
+      } catch (error) {}
+    });
+    return result;
+  }
+
+  public contains(k: MalType): MalBoolean {
+    let hasKey: boolean = false;
+    const myEntries: [MalType, MalType][] = this.entries();
+    myEntries.forEach(([key]: [MalType, MalType]) => {
       //@ts-ignore
-      isEqual = isEqual && this.list[index].equals(other.list[index]).value;
-    }
+      hasKey = hasKey || k.equals(key).value;
+    });
+    return new MalBoolean(hasKey);
+  }
+
+  public equals(other: MalMap): MalBoolean {
+    if (this.list.size !== other.list.size) return new MalBoolean(false);
+    let isEqual: boolean = true;
+    const myEntries: [MalType, MalType][] = this.entries();
+    myEntries.forEach(([key, value]: [MalType, MalType]) => {
+      //@ts-ignore
+      isEqual = isEqual && other.get(key).equals(value).value;
+    });
     return new MalBoolean(isEqual);
+  }
+
+  public vals(): MalList {
+    return new MalList(
+      this.entries().map(([, val]: [MalType, MalType]) => val)
+    );
+  }
+
+  public keys(): MalList {
+    return new MalList(this.entries().map(([key]: [MalType, MalType]) => key));
+  }
+
+  public assoc(list: MalType[]): MalMap {
+    const mapEntries: [MalType, MalType][] = this.entries();
+    const newEntryList: MalType[] = [];
+
+    for (let index = 0; index < list.length; index++) {
+      const key = list.shift();
+      const value = list.shift();
+      if (!value) {
+        throw new Error('unexpected hash length');
+      }
+
+      const index = mapEntries.findIndex((el: [MalType, MalType]) => {
+        //@ts-ignore
+        return el[0].equals(key as MalType).value;
+      });
+      //@ts-ignore
+      newEntryList.push(key);
+      //@ts-ignore
+      newEntryList.push(value);
+      if (index !== -1) {
+        mapEntries.splice(index, 1);
+      }
+    }
+    const flatMap: MalType[] = mapEntries.flat();
+    return new MalMap([...flatMap, ...newEntryList]);
+  }
+
+  public dissoc(list: MalType[]): MalMap {
+    const mapEntries: [MalType, MalType][] = this.entries();
+
+    for (let index = 0; index < list.length; index++) {
+      const key = list.shift();
+      const index = mapEntries.findIndex((el: [MalType, MalType]) => {
+        //@ts-ignore
+        return el[0].equals(key as MalType).value;
+      });
+
+      if (index !== -1) {
+        mapEntries.splice(index, 1);
+      }
+    }
+
+    return new MalMap(mapEntries.flat());
   }
 }
 
@@ -189,9 +320,9 @@ class MalNil {
 }
 
 class MalBoolean {
-  public value: Boolean;
+  public value: boolean;
 
-  constructor(value: Boolean) {
+  constructor(value: boolean) {
     this.value = value;
   }
 
@@ -286,13 +417,37 @@ class MalAtom {
     return newAst;
   }
 
-  public equalsTo(other: MalAtom) {
-    return this.ast === other.ast;
+  public equals(other: MalAtom): MalBoolean {
+    try {
+      //@ts-ignore
+      return new MalBoolean(this.equals(other).value);
+    } catch (error) {
+      return new MalBoolean(false);
+    }
+  }
+}
+
+class MalException {
+  public readonly cause: MalType;
+  constructor(cause: MalType) {
+    this.cause = cause;
+  }
+
+  public toString(): string {
+    return this.cause.toString();
+  }
+
+  public equals(other: MalException): MalBoolean {
+    try {
+      //@ts-ignore
+      return new MalBoolean(this.equals(other).value);
+    } catch (error) {
+      return new MalBoolean(false);
+    }
   }
 }
 
 type MalType =
-  | Env
   | MalMap
   | MalNil
   | MalAtom
@@ -303,7 +458,8 @@ type MalType =
   | MalSymbol
   | MalKeyword
   | MalBoolean
-  | MalFunction;
+  | MalFunction
+  | MalException;
 
 export {
   MalF,
@@ -318,5 +474,6 @@ export {
   MalSymbol,
   MalKeyword,
   MalBoolean,
-  MalFunction
+  MalFunction,
+  MalException
 };

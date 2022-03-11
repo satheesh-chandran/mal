@@ -39,8 +39,13 @@ const eval_ast = function (ast: MalType, env: Env): MalType {
     return new MalVector(malList.list.map(ast => EVAL(ast, env)));
   }
   if (ast instanceof MalMap) {
-    const malList: MalMap = ast as MalMap;
-    return new MalMap(malList.list.map(ast => EVAL(ast, env)));
+    const malMap: MalMap = ast as MalMap;
+    return new MalMap(
+      malMap
+        .entries()
+        .flat()
+        .map(ast => EVAL(ast, env))
+    );
   }
   return ast;
 };
