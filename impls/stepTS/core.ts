@@ -1,3 +1,4 @@
+import { readline } from './readline';
 import { readFileSync } from 'fs';
 import { Env } from './env';
 import { print_str } from './printer';
@@ -62,25 +63,19 @@ coreEnv.set(
 
 coreEnv.set(
   MalSymbol.get('read-string'),
-  new MalFunction(
-    (str: MalString): MalType => {
-      return read_str(str.str);
-    }
-  )
+  new MalFunction((str: MalString) => read_str(str.str))
 );
 
 coreEnv.set(
   MalSymbol.get('slurp'),
   new MalFunction(
-    (filename: MalString): MalType => {
-      return new MalString(readFileSync(filename.str, 'utf-8'));
-    }
+    (filename: MalString) => new MalString(readFileSync(filename.str, 'utf-8'))
   )
 );
 
 coreEnv.set(
   MalSymbol.get('prn'),
-  new MalFunction(function (...args: MalType[]): MalType {
+  new MalFunction((...args: MalType[]) => {
     const values: string[] = args.map((arg: MalType) => print_str(arg, true));
     console.log(values.join(' '));
     return MalNil.Instance;
@@ -89,7 +84,7 @@ coreEnv.set(
 
 coreEnv.set(
   MalSymbol.get('pr-str'),
-  new MalFunction(function (...args: MalType[]): MalType {
+  new MalFunction((...args: MalType[]) => {
     const values: string[] = args.map((arg: MalType) => print_str(arg, true));
     return new MalString(values.join(' '));
   })
@@ -97,7 +92,7 @@ coreEnv.set(
 
 coreEnv.set(
   MalSymbol.get('str'),
-  new MalFunction(function (...args: MalType[]): MalType {
+  new MalFunction((...args: MalType[]) => {
     const values: string[] = args.map((arg: MalType) => print_str(arg, false));
     return new MalString(values.join(''));
   })
@@ -105,9 +100,8 @@ coreEnv.set(
 
 coreEnv.set(
   MalSymbol.get('println'),
-  new MalFunction(function (...args: MalType[]): MalType {
+  new MalFunction((...args: MalType[]) => {
     const values: string[] = args.map((arg: MalType) => print_str(arg, false));
-    // process.stdout.write(values.join(' '));
     console.log(values.join(' '));
     return MalNil.Instance;
   })
@@ -115,28 +109,37 @@ coreEnv.set(
 
 coreEnv.set(
   MalSymbol.get('list'),
-  new MalFunction(function (...args: MalType[]): MalType {
-    return new MalList(args);
-  })
+  new MalFunction((...args: MalType[]) => new MalList(args))
 );
 
 coreEnv.set(
   MalSymbol.get('list?'),
-  new MalFunction(function (arg: MalType): MalType {
-    return new MalBoolean(arg instanceof MalList);
-  })
+  new MalFunction((arg: MalType) => new MalBoolean(arg instanceof MalList))
+);
+
+coreEnv.set(
+  MalSymbol.get('number?'),
+  new MalFunction((arg: MalType) => new MalBoolean(arg instanceof MalNumber))
+);
+
+coreEnv.set(
+  MalSymbol.get('string?'),
+  new MalFunction((arg: MalType) => new MalBoolean(arg instanceof MalString))
+);
+
+coreEnv.set(
+  MalSymbol.get('fn?'),
+  new MalFunction((arg: MalType) => new MalBoolean(arg instanceof MalFunction))
 );
 
 coreEnv.set(
   MalSymbol.get('empty?'),
-  new MalFunction(function (list: MalList): MalType {
-    return new MalBoolean(list.list.length == 0);
-  })
+  new MalFunction((list: MalList | MalVector | MalString) => list.isEmpty())
 );
 
 coreEnv.set(
   MalSymbol.get('count'),
-  new MalFunction(function (list: MalList): MalType {
+  new MalFunction((list: MalList) => {
     try {
       return new MalNumber(list.list.length);
     } catch (error) {
@@ -147,35 +150,31 @@ coreEnv.set(
 
 coreEnv.set(
   MalSymbol.get('<'),
-  new MalFunction(function (a: MalNumber, b: MalNumber): MalType {
-    return new MalBoolean(a.num < b.num);
-  })
+  new MalFunction((a: MalNumber, b: MalNumber) => new MalBoolean(a.num < b.num))
 );
 
 coreEnv.set(
   MalSymbol.get('>'),
-  new MalFunction(function (a: MalNumber, b: MalNumber): MalType {
-    return new MalBoolean(a.num > b.num);
-  })
+  new MalFunction((a: MalNumber, b: MalNumber) => new MalBoolean(a.num > b.num))
 );
 
 coreEnv.set(
   MalSymbol.get('<='),
-  new MalFunction(function (a: MalNumber, b: MalNumber): MalType {
-    return new MalBoolean(a.num <= b.num);
-  })
+  new MalFunction(
+    (a: MalNumber, b: MalNumber) => new MalBoolean(a.num <= b.num)
+  )
 );
 
 coreEnv.set(
   MalSymbol.get('>='),
-  new MalFunction(function (a: MalNumber, b: MalNumber): MalType {
-    return new MalBoolean(a.num >= b.num);
-  })
+  new MalFunction(
+    (a: MalNumber, b: MalNumber) => new MalBoolean(a.num >= b.num)
+  )
 );
 
 coreEnv.set(
   MalSymbol.get('='),
-  new MalFunction(function (a: MalType, b: MalType): MalType {
+  new MalFunction((a: MalType, b: MalType) => {
     try {
       //@ts-ignore
       return a.equals(b);
@@ -187,30 +186,19 @@ coreEnv.set(
 
 coreEnv.set(
   MalSymbol.get('atom'),
-  new MalFunction(function (el: MalType): MalAtom {
-    return new MalAtom(el);
-  })
+  new MalFunction((el: MalType) => new MalAtom(el))
 );
 
 coreEnv.set(
   MalSymbol.get('atom?'),
-  new MalFunction(function (el: MalType): MalBoolean {
-    return new MalBoolean(el instanceof MalAtom);
-  })
+  new MalFunction((el: MalType) => new MalBoolean(el instanceof MalAtom))
 );
 
-coreEnv.set(
-  MalSymbol.get('deref'),
-  new MalFunction(function (el: MalAtom): MalType {
-    return el.ast;
-  })
-);
+coreEnv.set(MalSymbol.get('deref'), new MalFunction((el: MalAtom) => el.ast));
 
 coreEnv.set(
   MalSymbol.get('reset!'),
-  new MalFunction(function (el: MalAtom, newAst: MalType): MalType {
-    return el.reset(newAst);
-  })
+  new MalFunction((el: MalAtom, newAst: MalType) => el.reset(newAst))
 );
 
 coreEnv.set(
@@ -311,72 +299,57 @@ coreEnv.set(
 
 coreEnv.set(
   MalSymbol.get('nil?'),
-  new MalFunction((ast: MalType) => {
-    return new MalBoolean(ast instanceof MalNil);
-  })
+  new MalFunction((ast: MalType) => new MalBoolean(ast instanceof MalNil))
 );
 
 coreEnv.set(
   MalSymbol.get('true?'),
   new MalFunction((ast: MalType) => {
-    if (ast instanceof MalBoolean) {
-      return new MalBoolean(ast.value === true);
-    }
-    return new MalBoolean(false);
+    return ast instanceof MalBoolean
+      ? new MalBoolean(ast.value === true)
+      : new MalBoolean(false);
   })
 );
 
 coreEnv.set(
   MalSymbol.get('false?'),
   new MalFunction((ast: MalType) => {
-    if (ast instanceof MalBoolean) {
-      return new MalBoolean(ast.value === false);
-    }
-    return new MalBoolean(false);
+    return ast instanceof MalBoolean
+      ? new MalBoolean(ast.value === false)
+      : new MalBoolean(false);
   })
 );
 
 coreEnv.set(
   MalSymbol.get('symbol?'),
-  new MalFunction((ast: MalType) => {
-    return new MalBoolean(ast instanceof MalSymbol);
-  })
+  new MalFunction((ast: MalType) => new MalBoolean(ast instanceof MalSymbol))
 );
 
 coreEnv.set(
   MalSymbol.get('symbol'),
-  new MalFunction((name: MalString) => {
-    return MalSymbol.get(name.str);
-  })
+  new MalFunction((name: MalString) => MalSymbol.get(name.str))
 );
 
 coreEnv.set(
   MalSymbol.get('keyword'),
-  new MalFunction((name: MalType) => {
-    if (name instanceof MalKeyword) return name;
-    return MalKeyword.get((name as MalString).str);
-  })
+  new MalFunction((name: MalType) =>
+    name instanceof MalKeyword ? name : MalKeyword.get((name as MalString).str)
+  )
 );
 
 coreEnv.set(
   MalSymbol.get('keyword?'),
-  new MalFunction((name: MalType) => {
-    return new MalBoolean(name instanceof MalKeyword);
-  })
+  new MalFunction((name: MalType) => new MalBoolean(name instanceof MalKeyword))
 );
 
 coreEnv.set(
   MalSymbol.get('vector?'),
-  new MalFunction((name: MalType) => {
-    return new MalBoolean(name instanceof MalVector);
-  })
+  new MalFunction((name: MalType) => new MalBoolean(name instanceof MalVector))
 );
 
 coreEnv.set(
   MalSymbol.get('vector'),
-  new MalFunction((...asts: MalType[]) => {
-    return new MalVector(asts);
-  })
+  new MalFunction((...asts: MalType[]) => new MalVector(asts))
 );
 
 coreEnv.set(
@@ -388,9 +361,7 @@ coreEnv.set(
 
 coreEnv.set(
   MalSymbol.get('map?'),
-  new MalFunction((name: MalType) => {
-    return new MalBoolean(name instanceof MalMap);
-  })
+  new MalFunction((name: MalType) => new MalBoolean(name instanceof MalMap))
 );
 
 coreEnv.set(
@@ -405,16 +376,12 @@ coreEnv.set(
 
 coreEnv.set(
   MalSymbol.get('assoc'),
-  new MalFunction((map: MalMap, ...list: MalType[]) => {
-    return map.assoc(list);
-  })
+  new MalFunction((map: MalMap, ...list: MalType[]) => map.assoc(list))
 );
 
 coreEnv.set(
   MalSymbol.get('dissoc'),
-  new MalFunction((map: MalMap, ...list: MalType[]) => {
-    return map.dissoc(list);
-  })
+  new MalFunction((map: MalMap, ...list: MalType[]) => map.dissoc(list))
 );
 
 coreEnv.set(
@@ -467,5 +434,72 @@ coreEnv.set(
     }
   })
 );
+
+coreEnv.set(
+  MalSymbol.get('readline'),
+  new MalFunction((ast: MalType) => {
+    try {
+      const res: string | null = readline((ast as MalString).str);
+      if (!res) {
+        return MalNil.Instance;
+      } else {
+        return new MalString(res);
+      }
+    } catch (error) {
+      return MalNil.Instance;
+    }
+  })
+);
+
+coreEnv.set(
+  MalSymbol.get('with-meta'),
+  new MalFunction((ast: MalType, meta: MalType) => ast.withMeta(meta))
+);
+
+coreEnv.set(
+  MalSymbol.get('meta'),
+  new MalFunction((ast: MalType) => ast.meta || MalNil.Instance)
+);
+
+coreEnv.set(
+  MalSymbol.get('time-ms'),
+  new MalFunction(() => new MalNumber(Date.now()))
+);
+
+coreEnv.set(
+  MalSymbol.get('macro?'),
+  new MalFunction((el: MalType) => {
+    return new MalBoolean(el instanceof MalFunction && el.isMacro);
+  })
+);
+
+coreEnv.set(
+  MalSymbol.get('seq'),
+  new MalFunction((el: MalList | MalVector | MalString | MalNil) => {
+    if (el instanceof MalNil) return MalNil.Instance;
+    if (el.isEmpty().value) return MalNil.Instance;
+    if (el instanceof MalString)
+      return new MalList(el.str.split('').map(e => new MalString(e)));
+    if (el instanceof MalVector) return new MalList(el.list);
+    return el;
+  })
+);
+
+coreEnv.set(
+  MalSymbol.get('conj'),
+  new MalFunction((list: MalType, ...args: MalType[]) => {
+    if (list instanceof MalList) {
+      const newList: MalList = new MalList(list.list);
+      args.forEach((el: MalType) => newList.list.unshift(el));
+      return newList;
+    }
+    if (list instanceof MalVector) {
+      return new MalVector([...list.list, ...args]);
+    }
+    throw new Error(`unexpected symbol: expected: list or vector`);
+  })
+);
+
+coreEnv.set(MalSymbol.get('*host-language*'), new MalString('typescript'));
 
 export default coreEnv;

@@ -2,6 +2,8 @@ import { Env } from './env';
 
 class MalList {
   public readonly list: MalType[];
+  public meta?: MalType;
+
   constructor(list: MalType[]) {
     this.list = list;
   }
@@ -51,10 +53,22 @@ class MalList {
     });
     return new MalBoolean(result);
   }
+
+  public isEmpty(): MalBoolean {
+    return new MalBoolean(this.list.length === 0);
+  }
+
+  public withMeta(meta: MalType): MalList {
+    const newList = new MalList(this.list);
+    newList.meta = meta;
+    return newList;
+  }
 }
 
 class MalVector {
   public readonly list: MalType[];
+  public meta?: MalType;
+
   constructor(list: MalType[]) {
     this.list = list;
   }
@@ -104,10 +118,22 @@ class MalVector {
     });
     return new MalBoolean(result);
   }
+
+  public isEmpty(): MalBoolean {
+    return new MalBoolean(this.list.length === 0);
+  }
+
+  public withMeta(meta: MalType): MalVector {
+    const newVector = new MalVector(this.list);
+    newVector.meta = meta;
+    return newVector;
+  }
 }
 
 class MalMap {
   public readonly list: Map<MalType, MalType>;
+  public meta?: MalType;
+
   constructor(list: MalType[]) {
     this.list = new Map<MalType, MalType>();
     while (list.length !== 0) {
@@ -226,10 +252,18 @@ class MalMap {
 
     return new MalMap(mapEntries.flat());
   }
+
+  public withMeta(meta: MalType): MalMap {
+    const newMap = new MalMap(this.entries().flat());
+    newMap.meta = meta;
+    return newMap;
+  }
 }
 
 class MalNumber {
   public readonly num: number;
+  public meta?: MalType;
+
   constructor(num: number) {
     this.num = num;
   }
@@ -242,10 +276,18 @@ class MalNumber {
   public equals(other: MalNumber): MalBoolean {
     return new MalBoolean(this.num === other.num);
   }
+
+  public withMeta(meta: MalType): MalNumber {
+    const newNumber = new MalNumber(this.num);
+    newNumber.meta = meta;
+    return newNumber;
+  }
 }
 
 class MalString {
   public readonly str: string;
+  public meta?: MalType;
+
   constructor(str: string) {
     this.str = str;
   }
@@ -264,10 +306,22 @@ class MalString {
   public equals(other: MalString): MalBoolean {
     return new MalBoolean(this.str === other.str);
   }
+
+  public isEmpty(): MalBoolean {
+    return new MalBoolean(this.str === '');
+  }
+
+  public withMeta(meta: MalType): MalString {
+    const newString = new MalString(this.str);
+    newString.meta = meta;
+    return newString;
+  }
 }
 
 class MalSymbol {
   public readonly sym: string;
+  public meta?: MalType;
+
   private static symbolMap: Map<string, MalSymbol> = new Map<
     string,
     MalSymbol
@@ -295,10 +349,17 @@ class MalSymbol {
   public equals(other: MalSymbol): MalBoolean {
     return new MalBoolean(this.sym === other.sym);
   }
+
+  public withMeta(meta: MalType): MalSymbol {
+    const newSymbol = MalSymbol.get(this.sym);
+    newSymbol.meta = meta;
+    return newSymbol;
+  }
 }
 
 class MalNil {
   private static _instance: MalNil;
+  public meta?: MalType;
 
   public static get Instance(): MalNil {
     if (!MalNil._instance) {
@@ -317,10 +378,16 @@ class MalNil {
   public equals(other: MalNil): MalBoolean {
     return new MalBoolean(this === other);
   }
+
+  public withMeta(meta: MalType): MalNil {
+    MalNil.Instance.meta = meta;
+    return MalNil.Instance;
+  }
 }
 
 class MalBoolean {
   public value: boolean;
+  public meta?: MalType;
 
   constructor(value: boolean) {
     this.value = value;
@@ -334,10 +401,18 @@ class MalBoolean {
   public equals(other: MalBoolean) {
     return new MalBoolean(this.value === other.value);
   }
+
+  public withMeta(meta: MalType): MalBoolean {
+    const newBoolean = new MalBoolean(this.value);
+    newBoolean.meta = meta;
+    return newBoolean;
+  }
 }
 
 class MalKeyword {
   private keyword: string;
+  public meta?: MalType;
+
   private static map: Map<string, MalKeyword> = new Map<string, MalKeyword>();
 
   public static get(name: string): MalKeyword {
@@ -362,6 +437,12 @@ class MalKeyword {
   public equals(other: MalKeyword) {
     return new MalBoolean(this.keyword === other.keyword);
   }
+
+  public withMeta(meta: MalType): MalKeyword {
+    const newKeyword = new MalKeyword(this.keyword);
+    newKeyword.meta = meta;
+    return newKeyword;
+  }
 }
 
 type MalF = (...args: (MalType | undefined)[]) => MalType;
@@ -372,6 +453,7 @@ class MalFunction {
   public readonly params: MalSymbol[] | undefined;
   public readonly env: Env | undefined;
   public isMacro: boolean;
+  public meta?: MalType;
 
   constructor(
     fn: MalF,
@@ -399,10 +481,23 @@ class MalFunction {
   public equals(other: MalFunction) {
     return new MalBoolean(this === other);
   }
+
+  public withMeta(meta: MalType): MalFunction {
+    const newFun = new MalFunction(
+      this.fn,
+      this.ast,
+      this.params,
+      this.env,
+      this.isMacro
+    );
+    newFun.meta = meta;
+    return newFun;
+  }
 }
 
 class MalAtom {
   public ast: MalType;
+  public meta?: MalType;
 
   constructor(ast: MalType) {
     this.ast = ast;
@@ -425,10 +520,18 @@ class MalAtom {
       return new MalBoolean(false);
     }
   }
+
+  public withMeta(meta: MalType): MalAtom {
+    const newAtom = new MalAtom(this.ast);
+    newAtom.meta = meta;
+    return newAtom;
+  }
 }
 
 class MalException {
   public readonly cause: MalType;
+  public meta?: MalType;
+
   constructor(cause: MalType) {
     this.cause = cause;
   }
@@ -444,6 +547,12 @@ class MalException {
     } catch (error) {
       return new MalBoolean(false);
     }
+  }
+
+  public withMeta(meta: MalType): MalException {
+    const newError = new MalException(this.cause);
+    newError.meta = meta;
+    return newError;
   }
 }
 

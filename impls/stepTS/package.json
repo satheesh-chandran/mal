@@ -1,5 +1,9 @@
 {
   "devDependencies": {
+    "@types/ffi-napi": "^4.0.4",
     "@types/node": "^17.0.21"
+  },
+  "dependencies": {
+    "ffi-napi": "^4.0.3"
   }
 }
